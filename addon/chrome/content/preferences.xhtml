@@ -10,6 +10,25 @@
       ><html:h2 data-l10n-id="aria-pref-model-configuration"></html:h2
     ></label>
     <hbox>
+      <label data-l10n-id="aria-pref-model-provider"></label>
+      <radiogroup
+        id="zotero-prefpane-__addonRef__-MODEL_PROVIDER"
+        preference="extensions.zotero.__addonRef__.MODEL_PROVIDER"
+        native="true"
+      >
+        <radio
+          label="OpenAI"
+          value="openai"
+          id="zotero-prefpane-__addonRef__-MODEL_PROVIDER-0"
+        />
+        <radio
+          label="Ollama"
+          value="ollama"
+          id="zotero-prefpane-__addonRef__-MODEL_PROVIDER-1"
+        />
+      </radiogroup>
+    </hbox>
+    <hbox>
       <label data-l10n-id="aria-pref-openai-model"></label>
       <radiogroup
         id="zotero-prefpane-__addonRef__-OPENAI_MODEL"
@@ -59,6 +78,29 @@
         type="text"
         id="zotero-prefpane-__addonRef__-OPENAI_BASE_URL"
         preference="extensions.zotero.__addonRef__.OPENAI_BASE_URL"
+      ></html:input>
+    </hbox>
+  </groupbox>
+  <groupbox>
+    <hbox>
+      <label data-l10n-id="aria-pref-ollama-model"></label>
+      <html:input
+        style="flex: 1; width: 100%"
+        type="text"
+        id="zotero-prefpane-__addonRef__-OLLAMA_MODEL"
+        preference="extensions.zotero.__addonRef__.OLLAMA_MODEL"
+      ></html:input>
+    </hbox>
+    <hbox>
+      <label
+        data-l10n-id="aria-pref-ollama-base-url"
+        style="display: flex; align-items: center"
+      ></label>
+      <html:input
+        style="flex: 1; width: 100%"
+        type="text"
+        id="zotero-prefpane-__addonRef__-OLLAMA_BASE_URL"
+        preference="extensions.zotero.__addonRef__.OLLAMA_BASE_URL"
       ></html:input>
     </hbox>
   </groupbox>
