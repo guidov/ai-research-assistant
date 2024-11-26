@@ -1,9 +1,12 @@
 pref-enable =
     .label = Enable
 aria-pref-model-configuration = Model Configuration
+aria-pref-model-provider = Model Provider
 aria-pref-openai-model = OpenAI Model
 aria-pref-openai-api-key = OpenAI API Key
 aria-pref-openai-base-url = OpenAI API Base URL
+aria-pref-ollama-model = Ollama Model
+aria-pref-ollama-base-url = Ollama API Base URL
 aria-pref-ui-customization = UI Customization
 aria-pref-default-zoom-level = Default Zoom Level
 aria-pref-keyboard-shortcut = Keyboard Shortcut
