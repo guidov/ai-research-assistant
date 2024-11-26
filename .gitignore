@@ -8,3 +8,5 @@ debug*.*
 *.env
 *.log
 .DS_Store
+.aider*
+.env
