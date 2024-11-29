@@ -4,21 +4,40 @@ import { BaseLLMOutputParser } from 'langchain/schema/output_parser'
 import { serializeError } from 'serialize-error'
 import { LLMChain } from 'langchain/chains'
 import { ChatOpenAI } from '@langchain/openai'
+import { ChatOllama } from 'langchain/chat_models/ollama'
 import { ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate } from 'langchain/prompts'
 import { config } from '../../../package.json'
+import { BaseChatModel } from 'langchain/chat_models/base'
 
-const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-const OPENAI_BASE_URL =
-  (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
-const llm = new ChatOpenAI({
-  temperature: 0,
-  openAIApiKey: OPENAI_API_KEY,
-  modelName: OPENAI_MODEL,
-  configuration: {
-    baseURL: OPENAI_BASE_URL,
-  },
-})
+// Initialize chat model based on preferences
+let llm: BaseChatModel
+const modelType = Zotero.Prefs.get(`${config.addonRef}.MODEL_TYPE`) as string || 'openai'
+
+if (modelType === 'ollama') {
+  const OLLAMA_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_BASE_URL`) as string || 'http://localhost:11434'
+  const OLLAMA_MODEL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_MODEL`) as string || 'llama2'
+  
+  llm = new ChatOllama({
+    baseUrl: OLLAMA_BASE_URL,
+    model: OLLAMA_MODEL,
+    temperature: 0,
+  })
+} else {
+  // Default to OpenAI
+  const OPENAI_API_KEY = Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string || 'YOUR_OPENAI_API_KEY'
+  const OPENAI_MODEL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string || 'gpt-4o'
+  const OPENAI_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string || 'https://api.openai.com/v1'
+  
+  llm = new ChatOpenAI({
+    temperature: 0,
+    openAIApiKey: OPENAI_API_KEY,
+    modelName: OPENAI_MODEL,
+    configuration: {
+      baseURL: OPENAI_BASE_URL,
+    },
+  })
+}
+
 const prompt = ChatPromptTemplate.fromPromptMessages([
   SystemMessagePromptTemplate.fromTemplate(
     `
@@ -41,9 +60,7 @@ export class OutputActionParser extends BaseLLMOutputParser<string> {
 
   async parseResult(generations: Generation[] | ChatGeneration[]): Promise<string> {
     try {
-      // console.log({ generations: generations[0].message.additional_kwargs.function_call })
       const result = await this.outputParser.parseResult(generations)
-      // JSON stringify output. Ref: https://python.langchain.com/docs/modules/chains/additional/openai_functions_retrieval_qa (See conversation QA output)
       return JSON.stringify(result)
     } catch (error) {
       const errorObj = serializeError(error)

@@ -19,6 +19,8 @@ import { ReadOnlyBufferWindowMemory } from '../utils/memory'
 import { OutputActionParser } from '../utils/parsers'
 import { loadSearchChain, SearchChain } from './search'
 import * as zot from '../../apis/zotero'
+import { ChatOllama } from 'langchain/chat_models/ollama'
+import { BaseChatModel } from 'langchain/chat_models/base'
 
 // // Prompt credit: https://github.com/whitead/paper-qa/blob/main/paperqa/qaprompts.py
 const QA_DEFAULT_PROMPT = ChatPromptTemplate.fromPromptMessages([
@@ -206,18 +208,35 @@ interface loadQAChainInput {
 }
 
 export const loadQAChain = (params: loadQAChainInput) => {
-  const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-  const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-  const OPENAI_BASE_URL =
-    (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
-  const llm = new ChatOpenAI({
-    temperature: 0,
-    openAIApiKey: OPENAI_API_KEY,
-    modelName: OPENAI_MODEL,
-    configuration: {
-      baseURL: OPENAI_BASE_URL,
-    },
-  })
+  // Initialize chat model based on preferences
+  let llm: BaseChatModel
+  const modelType = Zotero.Prefs.get(`${config.addonRef}.MODEL_TYPE`) as string || 'openai'
+
+  if (modelType === 'ollama') {
+    const OLLAMA_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_BASE_URL`) as string || 'http://localhost:11434'
+    const OLLAMA_MODEL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_MODEL`) as string || 'llama2'
+    
+    llm = new ChatOllama({
+      baseUrl: OLLAMA_BASE_URL,
+      model: OLLAMA_MODEL,
+      temperature: 0,
+    })
+  } else {
+    // Default to OpenAI
+    const OPENAI_API_KEY = Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string
+    const OPENAI_MODEL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string || 'gpt-4'
+    const OPENAI_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string || 'https://api.openai.com/v1'
+    
+    llm = new ChatOpenAI({
+      temperature: 0,
+      openAIApiKey: OPENAI_API_KEY,
+      modelName: OPENAI_MODEL,
+      configuration: {
+        baseURL: OPENAI_BASE_URL,
+      },
+    })
+  }
+
   const { prompt = QA_DEFAULT_PROMPT, langChainCallbackManager, zoteroCallbacks, memory } = params
   const chain = new QAChain({ prompt, memory, llm, langChainCallbackManager, zoteroCallbacks })
   return chain
@@ -287,18 +306,35 @@ class RetrievalQAChain extends BaseChain {
 }
 
 export const loadRetrievalQAChain = (params: loadQAChainInput) => {
-  const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-  const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-  const OPENAI_BASE_URL =
-    (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
-  const llm = new ChatOpenAI({
-    temperature: 0,
-    openAIApiKey: OPENAI_API_KEY,
-    modelName: OPENAI_MODEL,
-    configuration: {
-      baseURL: OPENAI_BASE_URL,
-    },
-  })
+  // Initialize chat model based on preferences
+  let llm: BaseChatModel
+  const modelType = Zotero.Prefs.get(`${config.addonRef}.MODEL_TYPE`) as string || 'openai'
+
+  if (modelType === 'ollama') {
+    const OLLAMA_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_BASE_URL`) as string || 'http://localhost:11434'
+    const OLLAMA_MODEL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_MODEL`) as string || 'llama2'
+    
+    llm = new ChatOllama({
+      baseUrl: OLLAMA_BASE_URL,
+      model: OLLAMA_MODEL,
+      temperature: 0,
+    })
+  } else {
+    // Default to OpenAI
+    const OPENAI_API_KEY = Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string
+    const OPENAI_MODEL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string || 'gpt-4'
+    const OPENAI_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string || 'https://api.openai.com/v1'
+    
+    llm = new ChatOpenAI({
+      temperature: 0,
+      openAIApiKey: OPENAI_API_KEY,
+      modelName: OPENAI_MODEL,
+      configuration: {
+        baseURL: OPENAI_BASE_URL,
+      },
+    })
+  }
+
   const { prompt = QA_DEFAULT_PROMPT, langChainCallbackManager, zoteroCallbacks, memory } = params
   const searchChain = loadSearchChain({ langChainCallbackManager, zoteroCallbacks, memory, mode: 'qa' })
   const qaChain = new QAChain({ prompt, memory, llm, langChainCallbackManager, zoteroCallbacks })

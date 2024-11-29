@@ -14,24 +14,42 @@ import { ChainValues } from 'langchain/schema'
 import { StructuredOutputParser, OutputFixingParser } from 'langchain/output_parsers'
 import { config } from '../../../package.json'
 import { ChatOpenAI } from '@langchain/openai'
+import { ChatOllama } from 'langchain/chat_models/ollama'
+import { BaseChatModel } from 'langchain/chat_models/base'
 import { create } from 'domain'
 import { CallbackManager, CallbackManagerForChainRun } from 'langchain/callbacks'
 import { ClarificationActionResponse, RoutingActionResponse, ExecutorActionResponse } from '../utils/actions'
 import { OutputActionParser } from '../utils/parsers'
 import { serializeStates } from '../utils/states'
 
-const OPENAI_API_KEY = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string) || 'YOUR_OPENAI_API_KEY'
-const OPENAI_MODEL = (Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string) || 'gpt-4o'
-const OPENAI_BASE_URL =
-  (Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string) || 'https://api.openai.com/v1'
-const llm = new ChatOpenAI({
-  temperature: 0,
-  openAIApiKey: OPENAI_API_KEY,
-  modelName: OPENAI_MODEL,
-  configuration: {
-    baseURL: OPENAI_BASE_URL,
-  },
-})
+// Initialize chat model based on preferences
+let llm: BaseChatModel
+const modelType = Zotero.Prefs.get(`${config.addonRef}.MODEL_TYPE`) as string || 'openai'
+
+if (modelType === 'ollama') {
+  const OLLAMA_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_BASE_URL`) as string || 'http://localhost:11434'
+  const OLLAMA_MODEL = Zotero.Prefs.get(`${config.addonRef}.OLLAMA_MODEL`) as string || 'llama2'
+  
+  llm = new ChatOllama({
+    baseUrl: OLLAMA_BASE_URL,
+    model: OLLAMA_MODEL,
+    temperature: 0,
+  })
+} else {
+  // Default to OpenAI
+  const OPENAI_API_KEY = Zotero.Prefs.get(`${config.addonRef}.OPENAI_API_KEY`) as string
+  const OPENAI_MODEL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_MODEL`) as string || 'gpt-4'
+  const OPENAI_BASE_URL = Zotero.Prefs.get(`${config.addonRef}.OPENAI_BASE_URL`) as string || 'https://api.openai.com/v1'
+  
+  llm = new ChatOpenAI({
+    temperature: 0,
+    openAIApiKey: OPENAI_API_KEY,
+    modelName: OPENAI_MODEL,
+    configuration: {
+      baseURL: OPENAI_BASE_URL,
+    },
+  })
+}
 
 export interface Routes {
   [key: string]: {
@@ -202,14 +220,12 @@ export const createRouter = ({
     llmKwargs: {
       functions,
       function_call: { name: 'routing' },
-      // TODO: Put chain metadata here until it is officially supported
       key: 'router-chain',
       title: '🚀 Routing Your Request',
     } as any,
     outputParser,
     outputKey: 'output',
     callbackManager,
-    // verbose: true,
     tags: ['router'],
   })
   return chain
