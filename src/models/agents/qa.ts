@@ -1,22 +1,22 @@
-import { AgentExecutor } from 'langchain/agents'
-import { ChatOpenAI } from 'langchain/chat_models/openai'
-import { ChatOllama } from 'langchain/chat_models/ollama'
-import { CallbackManager } from 'langchain/callbacks'
-import { config } from '../../../package.json'
-import { OPENAI_GPT_MODEL } from '../../constants'
-import { BaseChatModel } from 'langchain/chat_models/base'
-import { BufferWindowMemory } from 'langchain/memory'
-import { ChatConversationalAgent } from 'langchain/agents'
+//import { AgentExecutor } from 'langchain/agents'
+//import { ChatOpenAI } from 'langchain/chat_models/openai'
+//import { ChatOllama } from 'langchain/chat_models/ollama'
+//import { CallbackManager } from 'langchain/callbacks'
+//import { config } from '../../../package.json'
+//import { OPENAI_GPT_MODEL } from '../../constants'
+//import { BaseChatModel } from 'langchain/chat_models/base'
+//import { BufferWindowMemory } from 'langchain/memory'
+//import { ChatConversationalAgent } from 'langchain/agents'
 
-interface createQAExecutorInput {
-  langChainCallbackManager: CallbackManager
-  zoteroCallbacks: ZoteroCallbacks
-}
+//interface createQAExecutorInput {
+//  langChainCallbackManager: CallbackManager
+//  zoteroCallbacks: ZoteroCallbacks
+//}
 
-export function createQAExecutor({ langChainCallbackManager, zoteroCallbacks }: createQAExecutorInput): AgentExecutor {
-  const title = 'QA Assistant'
-  const description = `
-  QA Assistant analyzes and understands the content of your Zotero library. It can help streamline your research process by performing automatic literature search, summarization, and question & answer.
+//export function createQAExecutor({ langChainCallbackManager, zoteroCallbacks }: createQAExecutorInput): AgentExecutor {
+//  const title = 'QA Assistant'
+//  const description = `
+//  QA Assistant analyzes and understands the content of your Zotero library. It can help streamline your research process by performing automatic literature search, summarization, and question & answer.
   `
 
   // Initialize chat model based on preferences
